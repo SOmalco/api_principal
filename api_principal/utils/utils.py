@@ -84,3 +84,25 @@ def search_partner(partner_cnpj: str,
 
 def set_partners(partners: pd.DataFrame):
     partners.to_csv('api_principal/data/partners.csv', index=False)
+
+def get_cached_expiration_date(expiration_dates: dict,
+                               individual_data: dict):
+    try:
+        if datetime.strptime(expiration_dates[str(individual_data['age'])][individual_data['sex'].lower()]['expire_at'],
+                             constants.default_date_format) >=  datetime.now():
+
+            return expiration_dates[str(individual_data['age'])][individual_data['sex'].lower()]
+    except KeyError:
+        return 0
+
+def update_expiration_dates(expiration_dates: dict,
+                            individual_data: dict,
+                            new_quotation: dict):
+    age_str = str(individual_data['age'])
+    if age_str in expiration_dates.keys():
+        expiration_dates[str(individual_data['age'])][individual_data['sex'].lower()] =  new_quotation
+        return expiration_dates
+    else:
+        expiration_dates[str(individual_data['age'])] = {}
+        expiration_dates[str(individual_data['age'])][individual_data['sex'].lower()] = new_quotation
+        return expiration_dates
